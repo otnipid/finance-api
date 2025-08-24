@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-api
+  template:
+    metadata:
+      labels:
+        app: finance-api
+    spec:
+      containers:
+      - name: finance-api
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }} 
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.image.port }}
+        env:
+        - name: POSTGRES_USER
+          value: "finance_user"
+        - name: POSTGRES_PASSWORD
+          value: "strongpassword"
+        - name: POSTGRES_DB
+          value: "finance_db"
+        - name: POSTGRES_HOST
+          value: "finance-db-postgres"  # Internal cluster DNS name
+        - name: POSTGRES_PORT
+          value: "5432"

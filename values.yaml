@@ -1,0 +1,11 @@
+persistence:
+  enabled: true
+  storageClass: "" 
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+image:
+  repository: finance-api
+  tag: latest
+  pullPolicy: Always
+  port: 8000

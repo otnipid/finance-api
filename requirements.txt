@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]           # Includes 'uvloop', 'httptools', 'watchgod' for better performance
+sqlalchemy>=2.0.0,<3.0.0    # Explicitly versioned to avoid future breaking changes
+psycopg2-binary             # PostgreSQL driver
+pydantic>=1.10,<2.0         # Compatible with FastAPI (or 2.0+ if you opt into FastAPI v2 support)
+python-dotenv               # For managing env vars locally (if used)
+alembic                     # For database migrations
+httpx                      # For writing async tests or making external HTTP calls
+pytest                     # For test suite
