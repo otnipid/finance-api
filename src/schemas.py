@@ -26,8 +26,6 @@ class TransactionBase(BaseModel):
     description: Optional[str]
     category: Optional[str]
     amount: float
-    savings_bucket_id: Optional[int]
-    budget_category_id: Optional[int]
 
 class TransactionCreate(TransactionBase):
     pass

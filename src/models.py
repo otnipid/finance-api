@@ -23,8 +23,6 @@ class Transaction(Base):
     category = Column(String(100))
     amount = Column(Numeric(12, 2), nullable=False)
     created_at = Column(TIMESTAMP)
-    savings_bucket_id = Column(Integer, ForeignKey('savings_buckets.id'))
-    budget_category_id = Column(Integer, ForeignKey('budget_categories.id'))
 
 class BudgetCategory(Base):
     __tablename__ = 'budget_categories'
