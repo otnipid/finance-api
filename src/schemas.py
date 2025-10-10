@@ -29,7 +29,7 @@ class AccountBase(BaseModel):
 
 class TransactionBase(BaseModel):
     account_id: str
-    date: datetime
+    posted_date: datetime
     description: Optional[str] = None
     amount: float
     memo: Optional[str] = None
@@ -56,7 +56,7 @@ class AccountUpdate(BaseModel):
 
 class TransactionUpdate(TransactionBase):
     account_id: Optional[str] = None
-    date: Optional[datetime] = None
+    posted_date: Optional[datetime] = None
     amount: Optional[float] = None
     description: Optional[str] = None
     memo: Optional[str] = None

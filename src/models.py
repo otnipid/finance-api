@@ -21,7 +21,7 @@ class Transaction(Base):
 
     id = Column(String, primary_key=True, index=True)  # SimpleFin transaction ID
     account_id = Column(String, ForeignKey('accounts.id', ondelete='CASCADE'))
-    date = Column(TIMESTAMP(timezone=True), nullable=False)
+    posted_date = Column(TIMESTAMP(timezone=True), nullable=False)  # Changed to match database
     amount = Column(Numeric(12, 2), nullable=False)
     description = Column(Text)
     memo = Column(Text)

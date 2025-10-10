@@ -67,12 +67,12 @@ def get_transactions(
         query = query.filter(models.Transaction.account_id == account_id)
     
     if start_date:
-        query = query.filter(models.Transaction.date >= start_date)
+        query = query.filter(models.Transaction.posted_date >= start_date)
     
     if end_date:
-        query = query.filter(models.Transaction.date <= end_date)
+        query = query.filter(models.Transaction.posted_date <= end_date)
     
-    return query.order_by(desc(models.Transaction.date)).offset(skip).limit(limit).all()
+    return query.order_by(desc(models.Transaction.posted_date)).offset(skip).limit(limit).all()
 
 def get_transaction(db: Session, transaction_id: str) -> Optional[models.Transaction]:
     """Get a transaction by ID"""
