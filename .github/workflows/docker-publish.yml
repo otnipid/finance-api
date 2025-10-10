@@ -9,6 +9,7 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: pinto18/finance-api
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
   build-and-push:
@@ -53,6 +54,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            DATABASE_URL=${{ env.DATABASE_URL }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=inline
