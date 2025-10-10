@@ -1,29 +1,39 @@
-from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, Text, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, Text, TIMESTAMP, JSON, Boolean
+from sqlalchemy.orm import relationship
 from database import Base
 
 class Account(Base):
     __tablename__ = 'accounts'
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    type = Column(String(50))
-    institution = Column(String(100))
-    account_number_last4 = Column(String(4))
-    currency = Column(String(3), default='USD')
-    current_balance = Column(Numeric(12, 2), default=0.00)
-    created_at = Column(TIMESTAMP)
+    id = Column(String, primary_key=True, index=True)  # SimpleFin account ID
+    name = Column(Text, nullable=False)
+    currency = Column(Text)
+    type = Column(Text)
+    institution = Column(Text)
+    number = Column(Text)  # Last 4 digits or full account number
+    org_name = Column(Text)  # Organization name (e.g., Fidelity, Chase)
+    url = Column(Text)  # Institution URL
+    username = Column(Text)  # Masked username if available
+    last_updated = Column(TIMESTAMP(timezone=True))
+    
+    transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
 
 class Transaction(Base):
     __tablename__ = 'transactions'
 
-    id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'))
-    date = Column(Date, nullable=False)
-    description = Column(Text)
-    category = Column(String(100))
+    id = Column(String, primary_key=True, index=True)  # SimpleFin transaction ID
+    account_id = Column(String, ForeignKey('accounts.id', ondelete='CASCADE'))
+    date = Column(TIMESTAMP(timezone=True), nullable=False)
     amount = Column(Numeric(12, 2), nullable=False)
-    created_at = Column(TIMESTAMP)
-
+    description = Column(Text)
+    memo = Column(Text)
+    payee = Column(Text)
+    pending = Column(Boolean, default=False)
+    metadata = Column(JSON)  # Store complete SimpleFin transaction data
+    created_at = Column(TIMESTAMP(timezone=True), server_default='now()')
+    
+    account = relationship("Account", back_populates="transactions")
+    
 class BudgetCategory(Base):
     __tablename__ = 'budget_categories'
 

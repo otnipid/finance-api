@@ -1,9 +1,34 @@
-fastapi
-uvicorn[standard]           # Includes 'uvloop', 'httptools', 'watchgod' for better performance
-sqlalchemy>=2.0.0,<3.0.0    # Explicitly versioned to avoid future breaking changes
-psycopg2-binary             # PostgreSQL driver
-pydantic>=1.10,<2.0         # Compatible with FastAPI (or 2.0+ if you opt into FastAPI v2 support)
-python-dotenv               # For managing env vars locally (if used)
-alembic                     # For database migrations
-httpx                      # For writing async tests or making external HTTP calls
-pytest                     # For test suite
+# Core
+fastapi==0.104.1
+uvicorn==0.24.0
+python-dotenv==1.0.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+
+# Plaid
+plaid-python==17.0.0
+
+# SimpleFin
+simplefin4py==0.1.0
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+httpx==0.25.1
+
+# Development
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0
+mypy==1.7.0
+
+# Async
+anyio==3.7.1
+
+# CORS
+python-multipart==0.0.6
