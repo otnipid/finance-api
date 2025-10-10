@@ -71,17 +71,21 @@ class TransactionUpdate(TransactionBase):
 # Response schemas
 class Account(AccountBase):
     id: str
-    created_at: Optional[datetime]
+    last_updated: Optional[datetime] = None
 
     class Config:
         orm_mode = True
+        fields = {
+            'transaction_metadata': {'exclude': True}
+        }
 
 class Transaction(TransactionBase):
     id: str
-    created_at: Optional[datetime]
+    transaction_metadata: Optional[Dict[str, Any]] = Field(alias="metadata")
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
 
 # Budget and Savings schemas
 class BudgetCategoryBase(BaseModel):
@@ -93,7 +97,7 @@ class BudgetCategoryCreate(BudgetCategoryBase):
 
 class BudgetCategory(BudgetCategoryBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
@@ -109,7 +113,7 @@ class SavingsBucketCreate(SavingsBucketBase):
 
 class SavingsBucket(SavingsBucketBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
