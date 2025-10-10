@@ -13,9 +13,6 @@ psycopg2-binary==2.9.9
 # Plaid
 plaid-python==17.0.0
 
-# SimpleFin
-simplefin4py==0.1.0
-
 # Testing
 pytest==7.4.3
 pytest-cov==4.1.0
