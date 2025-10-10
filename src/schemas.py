@@ -35,7 +35,6 @@ class TransactionBase(BaseModel):
     memo: Optional[str] = None
     payee: Optional[str] = None
     pending: Optional[bool] = False
-    metadata: Optional[Dict[str, Any]] = None
 
 # Create schemas
 class AccountCreate(AccountBase):
@@ -62,7 +61,6 @@ class TransactionUpdate(TransactionBase):
     memo: Optional[str] = None
     payee: Optional[str] = None
     pending: Optional[bool] = None
-    metadata: Optional[Dict[str, Any]] = None
 
 # Response schemas
 class Account(AccountBase):
@@ -77,7 +75,6 @@ class Account(AccountBase):
 
 class Transaction(TransactionBase):
     id: str
-    transaction_metadata: Optional[Dict[str, Any]] = Field(alias="metadata")
 
     class Config:
         orm_mode = True

@@ -27,8 +27,6 @@ class Transaction(Base):
     memo = Column(Text)
     payee = Column(Text)
     pending = Column(Boolean, default=False)
-    transaction_metadata = Column('metadata', JSON)  # Store complete SimpleFin transaction data
-    created_at = Column(TIMESTAMP(timezone=True), server_default='now()')
     
     account = relationship("Account", back_populates="transactions")
     
