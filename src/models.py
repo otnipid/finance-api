@@ -9,11 +9,9 @@ class Account(Base):
     name = Column(Text, nullable=False)
     currency = Column(Text)
     type = Column(Text)
-    institution = Column(Text)
-    number = Column(Text)  # Last 4 digits or full account number
+    balance = Column(Numeric(15, 2))  # Current account balance
     org_name = Column(Text)  # Organization name (e.g., Fidelity, Chase)
     url = Column(Text)  # Institution URL
-    username = Column(Text)  # Masked username if available
     last_updated = Column(TIMESTAMP(timezone=True))
     
     transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")

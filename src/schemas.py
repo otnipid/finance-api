@@ -21,12 +21,10 @@ class TransactionStatus(str, Enum):
 class AccountBase(BaseModel):
     name: str
     type: Optional[AccountType] = None
-    institution: Optional[str] = None
-    number: Optional[str] = None
     currency: Optional[str] = 'USD'
+    balance: Optional[float] = None
     org_name: Optional[str] = None
     url: Optional[str] = None
-    username: Optional[str] = None
     last_updated: Optional[datetime] = None
 
 class TransactionBase(BaseModel):
@@ -51,11 +49,9 @@ class AccountUpdate(BaseModel):
     name: Optional[str] = None
     type: Optional[AccountType] = None
     currency: Optional[str] = None
-    institution: Optional[str] = None
-    number: Optional[str] = None
+    balance: Optional[float] = None
     org_name: Optional[str] = None
     url: Optional[str] = None
-    username: Optional[str] = None
     last_updated: Optional[datetime] = None
 
 class TransactionUpdate(TransactionBase):
