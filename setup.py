@@ -15,6 +15,7 @@ setup(
         "python-jose[cryptography]>=3.3.0",
         "passlib[bcrypt]>=1.7.4",
         "python-multipart>=0.0.5",
+        "pytz>=2023.3",
     ],
     python_requires=">=3.8",
 )
