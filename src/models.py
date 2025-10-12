@@ -1,6 +1,6 @@
+from src.database import Base
 from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, Text, TIMESTAMP, JSON, Boolean
 from sqlalchemy.orm import relationship
-from database import Base
 
 class Account(Base):
     __tablename__ = 'accounts'
@@ -21,6 +21,7 @@ class Transaction(Base):
 
     id = Column(String, primary_key=True, index=True)  # SimpleFin transaction ID
     account_id = Column(String, ForeignKey('accounts.id', ondelete='CASCADE'))
+    category_id = Column(Integer, ForeignKey('budget_categories.id', ondelete='SET NULL'), nullable=True)
     posted_date = Column(TIMESTAMP(timezone=True), nullable=False)  # Changed to match database
     amount = Column(Numeric(12, 2), nullable=False)
     description = Column(Text)
@@ -29,14 +30,17 @@ class Transaction(Base):
     pending = Column(Boolean, default=False)
     
     account = relationship("Account", back_populates="transactions")
-    
+    category = relationship("BudgetCategory", back_populates="transactions")
+
 class BudgetCategory(Base):
     __tablename__ = 'budget_categories'
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     monthly_limit = Column(Numeric(12, 2), default=0.00)
-    created_at = Column(TIMESTAMP)
+    created_at = Column(TIMESTAMP, server_default='now()')
+    
+    transactions = relationship("Transaction", back_populates="category")
 
 class SavingsBucket(Base):
     __tablename__ = 'savings_buckets'

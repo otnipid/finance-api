@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-import models, schemas
+from src import models, schemas
 
 def create_account(db: Session, account: schemas.AccountCreate) -> models.Account:
     """Create a new account"""
@@ -102,53 +102,57 @@ def delete_transaction(db: Session, transaction_id: str) -> Optional[models.Tran
     return db_transaction
 
 # Budget Categories
-def create_budget_category(
+def create_budget(
     db: Session, 
-    category: schemas.BudgetCategoryCreate
+    budget: schemas.BudgetCategoryCreate
 ) -> models.BudgetCategory:
     """Create a new budget category"""
-    db_category = models.BudgetCategory(**category.dict())
-    db.add(db_category)
+    db_budget = models.BudgetCategory(**budget.dict())
+    db.add(db_budget)
     db.commit()
-    db.refresh(db_category)
-    return db_category
+    db.refresh(db_budget)
+    return db_budget
 
-def get_budget_categories(
+def get_budgets(
     db: Session, 
     skip: int = 0, 
     limit: int = 100
 ) -> List[models.BudgetCategory]:
-    """Get all budget categories"""
+    """Get all budget categories with pagination"""
     return db.query(models.BudgetCategory).offset(skip).limit(limit).all()
 
-def get_budget_category(
+def get_budget(
     db: Session, 
-    category_id: int
+    budget_id: int
 ) -> Optional[models.BudgetCategory]:
     """Get a budget category by ID"""
-    return db.query(models.BudgetCategory).filter(models.BudgetCategory.id == category_id).first()
+    return db.query(models.BudgetCategory).filter(models.BudgetCategory.id == budget_id).first()
 
-def update_budget_category(
+def update_budget(
     db: Session, 
-    category_id: int, 
-    category_update: schemas.BudgetCategoryCreate
+    budget_id: int, 
+    budget: schemas.BudgetCategoryUpdate
 ) -> Optional[models.BudgetCategory]:
     """Update a budget category"""
-    db_category = get_budget_category(db, category_id)
-    if db_category:
-        for key, value in category_update.dict().items():
-            setattr(db_category, key, value)
+    db_budget = get_budget(db, budget_id=budget_id)
+    if db_budget:
+        update_data = budget.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_budget, key, value)
         db.commit()
-        db.refresh(db_category)
-    return db_category
+        db.refresh(db_budget)
+    return db_budget
 
-def delete_budget_category(db: Session, category_id: int) -> Optional[models.BudgetCategory]:
+def delete_budget(
+    db: Session, 
+    budget_id: int
+) -> Optional[models.BudgetCategory]:
     """Delete a budget category"""
-    db_category = get_budget_category(db, category_id)
-    if db_category:
-        db.delete(db_category)
+    db_budget = get_budget(db, budget_id=budget_id)
+    if db_budget:
+        db.delete(db_budget)
         db.commit()
-    return db_category
+    return db_budget
 
 # Savings Buckets
 def create_savings_bucket(

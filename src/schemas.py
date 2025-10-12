@@ -88,6 +88,10 @@ class BudgetCategoryBase(BaseModel):
 class BudgetCategoryCreate(BudgetCategoryBase):
     pass
 
+class BudgetCategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    monthly_limit: Optional[float] = None
+
 class BudgetCategory(BudgetCategoryBase):
     id: int
     created_at: Optional[datetime] = None
@@ -103,6 +107,12 @@ class SavingsBucketBase(BaseModel):
 
 class SavingsBucketCreate(SavingsBucketBase):
     pass
+
+class SavingsBucketUpdate(BaseModel):
+    name: Optional[str] = None
+    target_amount: Optional[float] = None
+    current_amount: Optional[float] = None
+    goal_date: Optional[date] = None
 
 class SavingsBucket(SavingsBucketBase):
     id: int
