@@ -9,8 +9,8 @@ from pytz import utc
 from contextlib import asynccontextmanager
 
 # Import database and models first to ensure tables are registered with SQLAlchemy
-from . import models, schemas, crud
-from .database import SessionLocal, engine, init_db, get_db as get_db_dep
+from src import models, schemas, crud
+from src.database import SessionLocal, engine, init_db, get_db as get_db_dep
 
 # Lifespan handler
 @asynccontextmanager
@@ -38,7 +38,7 @@ app.add_middleware(
 )
 
 # Import routers after app creation to avoid circular imports
-from .routers import accounts, transactions, budgets, savings_buckets
+from src.routers import accounts, transactions, budgets, savings_buckets
 
 # Include routers
 app.include_router(accounts.router, prefix="/api/accounts", tags=["accounts"])
