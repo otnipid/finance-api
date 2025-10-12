@@ -5,6 +5,7 @@ set -e
 
 # Colors for output
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
@@ -25,20 +26,28 @@ if ! command -v pytest &> /dev/null; then
     exit 1
 fi
 
-# Run tests with coverage
-echo -e "${GREEN}Running tests...${NC}"
-if ! TESTING=true python -m pytest -v --cov=src --cov-report=term-missing; then
-    echo -e "${RED}❌ Tests failed. Please fix the issues before pushing.${NC}"
-    exit 1
-fi
+# Function to run tests with a given marker
+run_tests() {
+    local marker=$1
+    local name=$2
+    
+    echo -e "\n${BLUE}Running ${name} tests...${NC}"
+    if ! TESTING=true python -m pytest -v -m "${marker}" --cov=src --cov-append --cov-report=term-missing; then
+        echo -e "${RED}❌ ${name} tests failed. Please fix the issues before pushing.${NC}"
+        return 1
+    fi
+    return 0
+}
 
-# Run any linting if needed
-# Uncomment the following lines if you want to add linting checks
-# echo -e "${GREEN}Running linter...${NC}"
-# if ! flake8 src tests; then
-#     echo -e "${RED}❌ Linting failed. Please fix the issues before pushing.${NC}"
-#     exit 1
-# fi
+# Run unit tests
+run_tests "unit" "Unit" || exit 1
 
-echo -e "${GREEN}✅ All checks passed! Pushing to remote...${NC}"
+# Run integration tests
+run_tests "integration" "Integration" || exit 1
+
+# Generate final coverage report
+echo -e "\n${GREEN}Generating coverage report...${NC}"
+python -m pytest --cov=src --cov-report=term-missing --cov-report=html:htmlcov
+
+echo -e "\n${GREEN}✅ All tests passed! Pushing to remote...${NC}"
 exit 0

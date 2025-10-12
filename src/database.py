@@ -43,6 +43,9 @@ else:
 # Create a configured "Session" class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Create a test session class for testing
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 # Create a base class for declarative class definitions
 Base = declarative_base()
 

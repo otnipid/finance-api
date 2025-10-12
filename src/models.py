@@ -13,7 +13,6 @@ class Account(Base):
     balance = Column(Numeric(15, 2))  # Current account balance
     org_name = Column(Text)  # Organization name (e.g., Fidelity, Chase)
     url = Column(Text)  # Institution URL
-    last_updated = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
     
     transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
 

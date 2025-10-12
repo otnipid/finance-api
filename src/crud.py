@@ -31,7 +31,6 @@ def update_account(
         update_data = account_update.dict(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_account, key, value)
-        db_account.last_updated = datetime.utcnow()
         db.commit()
         db.refresh(db_account)
     return db_account

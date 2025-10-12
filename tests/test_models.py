@@ -24,7 +24,6 @@ def test_create_account(db):
     assert db_account.name == "Test Account"
     assert db_account.type == "checking"
     assert db_account.balance == 1000.00
-    assert db_account.last_updated is not None
 
 def test_create_transaction(db, test_account_data):
     """Test creating a transaction with valid data"""

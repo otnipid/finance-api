@@ -25,7 +25,6 @@ class AccountBase(BaseModel):
     balance: Optional[float] = None
     org_name: Optional[str] = None
     url: Optional[str] = None
-    last_updated: Optional[datetime] = None
 
 class TransactionBase(BaseModel):
     account_id: str
@@ -51,7 +50,6 @@ class AccountUpdate(BaseModel):
     balance: Optional[float] = None
     org_name: Optional[str] = None
     url: Optional[str] = None
-    last_updated: Optional[datetime] = None
 
 class TransactionUpdate(TransactionBase):
     account_id: Optional[str] = None
@@ -65,7 +63,6 @@ class TransactionUpdate(TransactionBase):
 # Response schemas
 class Account(AccountBase):
     id: str
-    last_updated: Optional[datetime] = None
     
     model_config = ConfigDict(
         from_attributes=True,

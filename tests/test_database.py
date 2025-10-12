@@ -41,7 +41,6 @@ def test_can_create_and_retrieve_account(db: Session):
         balance=1000.00,
         org_name="Test Bank",
         url="https://test-bank.com",
-        last_updated=datetime.now(timezone.utc)
     )
     db.add(account)
     db.commit()
