@@ -184,15 +184,19 @@ def get_savings_bucket(
 def update_savings_bucket(
     db: Session, 
     bucket_id: int, 
-    bucket_update: schemas.SavingsBucketCreate
+    bucket_update: schemas.SavingsBucketUpdate
 ) -> Optional[models.SavingsBucket]:
     """Update a savings bucket"""
     db_bucket = get_savings_bucket(db, bucket_id)
-    if db_bucket:
-        for key, value in bucket_update.dict().items():
-            setattr(db_bucket, key, value)
-        db.commit()
-        db.refresh(db_bucket)
+    if db_bucket is None:
+        return None
+        
+    update_data = bucket_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_bucket, key, value)
+    
+    db.commit()
+    db.refresh(db_bucket)
     return db_bucket
 
 def delete_savings_bucket(db: Session, bucket_id: int) -> Optional[models.SavingsBucket]:

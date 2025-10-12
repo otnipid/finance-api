@@ -18,18 +18,12 @@ def create_savings_bucket(
 
 @router.get("/", response_model=List[schemas.SavingsBucket])
 def read_savings_buckets(
-    user_id: str,
     skip: int = 0, 
-    limit: int = 100, 
+    limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    """Get all savings buckets for a user with pagination"""
-    return crud.get_savings_buckets_by_user(
-        db=db,
-        user_id=user_id,
-        skip=skip,
-        limit=limit
-    )
+    """Get all savings buckets with pagination"""
+    return crud.get_savings_buckets(db=db, skip=skip, limit=limit)
 
 @router.get("/{bucket_id}", response_model=schemas.SavingsBucket)
 def read_savings_bucket(bucket_id: str, db: Session = Depends(get_db)):

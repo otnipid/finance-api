@@ -3,14 +3,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
+import os
+from pytz import utc
+from contextlib import asynccontextmanager
 
-# Import models first to ensure tables are registered with SQLAlchemy
+# Import database and models first to ensure tables are registered with SQLAlchemy
 from . import models, schemas, crud
-from .database import SessionLocal, engine
+from .database import SessionLocal, engine, init_db, get_db as get_db_dep
 
-# Create FastAPI app
-app = FastAPI()
+# Lifespan handler
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: create database tables
+    init_db()
+    
+    yield
+    
+    # Shutdown: close database connections, etc.
+    # No need to close database connections here, as they are handled by get_db dependency
+
+# Create FastAPI app with lifespan
+app = FastAPI(
+    lifespan=lifespan
+)
 
 # Configure CORS
 app.add_middleware(
@@ -21,10 +37,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def create_tables():
-    """Create database tables."""
-    models.Base.metadata.create_all(bind=engine)
-
 # Import routers after app creation to avoid circular imports
 from .routers import accounts, transactions, budgets, savings_buckets
 
@@ -34,13 +46,18 @@ app.include_router(transactions.router, prefix="/api/transactions", tags=["trans
 app.include_router(budgets.router, prefix="/api/budgets", tags=["budgets"])
 app.include_router(savings_buckets.router, prefix="/api/savings-buckets", tags=["savings-buckets"])
 
-# Database dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Override the default get_db dependency for testing
+if os.getenv("TESTING", "").lower() == "true":
+    # In testing, we'll override this with the test database session
+    def get_db():
+        db = SessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+else:
+    # In production/development, use the standard get_db
+    get_db = get_db_dep
 
 # Exception Handlers
 @app.exception_handler(HTTPException)
@@ -50,18 +67,20 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={"detail": exc.detail},
     )
 
+# Root endpoint
 @app.get("/")
-async def root():
+def root():
     return {"message": "Finance API is running"}
 
 # Health Check Endpoint
 @app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {"status": "ok", "timestamp": datetime.utcnow()}
+def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
 
-# Only create tables when running directly, not when imported
+# Only run the app directly if this file is executed (not imported)
 if __name__ == "__main__":
     import uvicorn
-    create_tables()
     uvicorn.run(app, host="0.0.0.0", port=8000)

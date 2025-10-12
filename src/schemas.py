@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict, Any
 from datetime import date, datetime
 from enum import Enum
@@ -66,19 +66,27 @@ class TransactionUpdate(TransactionBase):
 class Account(AccountBase):
     id: str
     last_updated: Optional[datetime] = None
-
-    class Config:
-        orm_mode = True
-        fields = {
-            'transaction_metadata': {'exclude': True}
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        },
+        json_schema_extra={
+            "exclude": ["transaction_metadata"]
         }
+    )
 
 class Transaction(TransactionBase):
     id: str
-
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        }
+    )
 
 # Budget and Savings schemas
 class BudgetCategoryBase(BaseModel):
@@ -95,9 +103,13 @@ class BudgetCategoryUpdate(BaseModel):
 class BudgetCategory(BudgetCategoryBase):
     id: int
     created_at: Optional[datetime] = None
-
-    class Config:
-        orm_mode = True
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        }
+    )
 
 class SavingsBucketBase(BaseModel):
     name: str
@@ -117,6 +129,11 @@ class SavingsBucketUpdate(BaseModel):
 class SavingsBucket(SavingsBucketBase):
     id: int
     created_at: Optional[datetime] = None
-
-    class Config:
-        orm_mode = True
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+    )
