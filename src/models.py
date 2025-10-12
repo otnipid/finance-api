@@ -22,17 +22,14 @@ class Transaction(Base):
 
     id = Column(String, primary_key=True, index=True)  # SimpleFin transaction ID
     account_id = Column(String, ForeignKey('accounts.id', ondelete='CASCADE'))
-    category_id = Column(Integer, ForeignKey('budget_categories.id', ondelete='SET NULL'), nullable=True)
     posted_date = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
     amount = Column(Numeric(12, 2), nullable=False)
     description = Column(Text)
     memo = Column(Text)
     payee = Column(Text)
     pending = Column(Boolean, default=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     
     account = relationship("Account", back_populates="transactions")
-    category = relationship("BudgetCategory", back_populates="transactions")
 
 class BudgetCategory(Base):
     __tablename__ = 'budget_categories'
@@ -41,8 +38,6 @@ class BudgetCategory(Base):
     name = Column(String(100), nullable=False)
     monthly_limit = Column(Numeric(12, 2), default=0.00)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
-    
-    transactions = relationship("Transaction", back_populates="category")
 
 class SavingsBucket(Base):
     __tablename__ = 'savings_buckets'

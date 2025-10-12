@@ -6,7 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 # Load environment variables from .env file if it exists
-load_dotenv()
+env_path = '.env.local' if os.path.exists('.env.local') else '.env'
+load_dotenv(env_path)
 
 # Check if we're in test mode
 TESTING = os.getenv("TESTING", "false").lower() == "true"
