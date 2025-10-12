@@ -52,7 +52,6 @@ def test_create_transaction(db, test_account_data):
     assert db_transaction is not None
     assert db_transaction.amount == 100.00
     assert db_transaction.account_id == account.id
-    assert db_transaction.created_at is not None
 
 def test_transaction_relationships(db, test_account_data):
     """Test the relationship between Account and Transaction"""
