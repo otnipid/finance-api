@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Exit on any error
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}Running pre-push checks...${NC}"
+
+# Change to the root directory of the repository
+cd "$(git rev-parse --show-toplevel)"
+
+# Check if we're in a virtual environment
+if [ -z "$VIRTUAL_ENV" ] && [ -z "$CONDA_PREFIX" ]; then
+    echo -e "${RED}Error: Not in a virtual environment. Please activate your virtual environment first.${NC}"
+    exit 1
+fi
+
+# Check if pytest is installed
+if ! command -v pytest &> /dev/null; then
+    echo -e "${RED}Error: pytest is not installed. Please install it with 'pip install pytest'${NC}"
+    exit 1
+fi
+
+# Run tests with coverage
+echo -e "${GREEN}Running tests...${NC}"
+if ! TESTING=true python -m pytest -v --cov=src --cov-report=term-missing; then
+    echo -e "${RED}❌ Tests failed. Please fix the issues before pushing.${NC}"
+    exit 1
+fi
+
+# Run any linting if needed
+# Uncomment the following lines if you want to add linting checks
+# echo -e "${GREEN}Running linter...${NC}"
+# if ! flake8 src tests; then
+#     echo -e "${RED}❌ Linting failed. Please fix the issues before pushing.${NC}"
+#     exit 1
+# fi
+
+echo -e "${GREEN}✅ All checks passed! Pushing to remote...${NC}"
+exit 0
