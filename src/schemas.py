@@ -34,6 +34,7 @@ class TransactionBase(BaseModel):
     memo: Optional[str] = None
     payee: Optional[str] = None
     pending: Optional[bool] = False
+    category: Optional[str] = Field(None, max_length=32)
 
 # Create schemas
 class AccountCreate(AccountBase):
@@ -59,6 +60,7 @@ class TransactionUpdate(TransactionBase):
     memo: Optional[str] = None
     payee: Optional[str] = None
     pending: Optional[bool] = None
+    category: Optional[str] = Field(None, max_length=32)
 
 # Response schemas
 class Account(AccountBase):

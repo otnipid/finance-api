@@ -28,6 +28,8 @@ class Transaction(Base):
     payee = Column(Text)
     pending = Column(Boolean, default=False)
     
+    category = Column(String(32), index=True)
+    
     account = relationship("Account", back_populates="transactions")
 
 class BudgetCategory(Base):
