@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import os
 from pytz import utc
 from contextlib import asynccontextmanager
+from src.routers import sync
 
 # Import database and models first to ensure tables are registered with SQLAlchemy
 from src import models, schemas, crud
@@ -45,6 +46,7 @@ app.include_router(accounts.router, prefix="/api/accounts", tags=["accounts"])
 app.include_router(transactions.router, prefix="/api/transactions", tags=["transactions"])
 app.include_router(budgets.router, prefix="/api/budgets", tags=["budgets"])
 app.include_router(savings_buckets.router, prefix="/api/savings-buckets", tags=["savings-buckets"])
+app.include_router(sync.router, prefix="/api/sync", tags=["sync"])
 
 # Override the default get_db dependency for testing
 if os.getenv("TESTING", "").lower() == "true":
