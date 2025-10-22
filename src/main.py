@@ -30,6 +30,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+    return response
+
 # List of allowed origins
 origins = [
     "http://localhost:5173",  # Your frontend URL
@@ -39,11 +46,11 @@ origins = [
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Explicitly list allowed origins
+    allow_origins=origins,  # Your list of allowed origins
     allow_credentials=True,
-    allow_methods=["*"],  # Or specify exact methods: ["GET", "POST", "PUT", "DELETE"]
-    allow_headers=["*"],  # Or specify exact headers
-    expose_headers=["*"],  # Expose any custom headers to the client
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Import routers after app creation to avoid circular imports
