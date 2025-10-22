@@ -8,6 +8,7 @@ import os
 from pytz import utc
 from contextlib import asynccontextmanager
 from src.routers import sync
+from starlette.config import Config
 
 # Import database and models first to ensure tables are registered with SQLAlchemy
 from src import models, schemas, crud
@@ -29,13 +30,20 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# List of allowed origins
+origins = [
+    "http://localhost:5173",  # Your frontend URL
+    # Add other origins as needed, e.g., production URL
+]
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this with your frontend URL in production
+    allow_origins=origins,  # Explicitly list allowed origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Or specify exact methods: ["GET", "POST", "PUT", "DELETE"]
+    allow_headers=["*"],  # Or specify exact headers
+    expose_headers=["*"],  # Expose any custom headers to the client
 )
 
 # Import routers after app creation to avoid circular imports
