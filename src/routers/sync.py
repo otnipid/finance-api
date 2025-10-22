@@ -10,6 +10,8 @@ from typing import Dict, Any
 import logging
 from datetime import datetime
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 @router.post("/simplefin", status_code=status.HTTP_200_OK)
