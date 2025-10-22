@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request, status
+from fastapi import FastAPI, Depends, HTTPException, Request, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from pytz import utc
 from contextlib import asynccontextmanager
 from src.routers import sync
 from starlette.config import Config
+from starlette.responses import Response as StarletteResponse
 
 # Import database and models first to ensure tables are registered with SQLAlchemy
 from src import models, schemas, crud
@@ -46,27 +47,6 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
-@app.middleware("http")
-async def cors_middleware(request: Request, call_next):
-    # Handle preflight requests
-    if request.method == "OPTIONS":
-        response = Response(
-            status_code=200,
-            headers={
-                "Access-Control-Allow-Origin": "http://localhost:5173",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Credentials": "true",
-            }
-        )
-        return response
-    
-    # For regular requests
-    response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    return response
-    
 # Import routers after app creation to avoid circular imports
 from src.routers import accounts, transactions, budgets, savings_buckets
 
