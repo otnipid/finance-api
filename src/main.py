@@ -30,13 +30,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-@app.middleware("http")
-async def add_cors_headers(request: Request, call_next):
-    response = await call_next(request)
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
-    return response
-
 # List of allowed origins
 origins = [
     "http://localhost:5173",  # Your frontend URL
@@ -53,6 +46,27 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+@app.middleware("http")
+async def cors_middleware(request: Request, call_next):
+    # Handle preflight requests
+    if request.method == "OPTIONS":
+        response = Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": "http://localhost:5173",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Credentials": "true",
+            }
+        )
+        return response
+    
+    # For regular requests
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
+    
 # Import routers after app creation to avoid circular imports
 from src.routers import accounts, transactions, budgets, savings_buckets
 
