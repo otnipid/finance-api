@@ -68,6 +68,7 @@ async def sync_simplefin(
             # Add new account
             db_account = Account(**account_data)
             db.add(db_account)
+            logger.info(f"Added new account: {account_data}")
             new_account_count += 1
         
         # Commit new accounts first to ensure foreign key constraints are satisfied
@@ -83,15 +84,12 @@ async def sync_simplefin(
             tx_id = tx.get('id')
             account_id = tx.get('account_id')
             
-            # Skip if missing required fields or transaction already exists
-            if not all([tx_id, account_id]) or tx_id in existing_tx_ids:
+            # Skip transaction already exists
+            if tx_id in existing_tx_ids:
                 continue
             
             # Skip if account doesn't exist in our database
-            if account_id not in existing_account_ids and account_id not in {
-                account.get('id') for account in accounts
-                if account.get('id') not in existing_account_ids
-            }:
+            if account_id not in existing_account_ids:
                 logger.warning(f"Account {account_id} not found in database or new accounts, skipping transaction {tx_id}")
                 continue
             
@@ -112,6 +110,7 @@ async def sync_simplefin(
                 # Add new transaction
                 db_tx = Transaction(**tx_data)
                 db.add(db_tx)
+                logger.info(f"Added new transaction: {tx_data}")
                 new_transaction_count += 1
                 
                 # Batch commit transactions to avoid large transactions
