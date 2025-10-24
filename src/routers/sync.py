@@ -24,34 +24,31 @@ async def sync_simplefin(
     
     Only adds new accounts and transactions that don't already exist in the database.
     Existing records will not be modified.
-    
-    Args:
-        days_back: Number of days of transactions to sync
-        db: Database session
-        
-    Returns:
-        Dict with sync results including counts of new accounts and transactions added
     """
     try:
+        logger.info("Starting SimpleFIN sync...")
         # Initialize SimpleFIN client
         client = SimpleFinClient()
         
         # Get accounts and transactions
         accounts = client.get_accounts(include_transactions=True, days_back=days_back)
-        transactions = client.get_transactions(days_back=days_back)
+        logger.info(f"Retrieved {len(accounts)} accounts from SimpleFIN")
         
         # Get all existing account IDs for quick lookup
-        existing_account_ids = {account[0] for account in db.query(Account.id).all()}
+        existing_accounts = db.query(Account).all()
+        existing_account_ids = {acc.id for acc in existing_accounts}
+        logger.info(f"Found {len(existing_account_ids)} existing accounts in database")
         
         # Process accounts - only add new ones
         new_account_count = 0
-        for account in accounts:
+        for i, account in enumerate(accounts, 1):
             account_id = account.get('id')
             if not account_id:
+                logger.warning(f"Account at index {i} has no ID, skipping")
                 continue
                 
-            # Skip if account already exists
             if account_id in existing_account_ids:
+                logger.debug(f"Account {account_id} already exists, skipping")
                 continue
                 
             # Prepare account data
@@ -68,33 +65,51 @@ async def sync_simplefin(
             # Add new account
             db_account = Account(**account_data)
             db.add(db_account)
-            logger.info(f"Added new account: {account_data}")
+            logger.info(f"Adding new account: {account_data}")
             new_account_count += 1
         
         # Commit new accounts first to ensure foreign key constraints are satisfied
         if new_account_count > 0:
             db.commit()
+            logger.info(f"Committed {new_account_count} new accounts to database")
         
-        # Get all existing transaction IDs for quick lookup
+        # Get all existing transactions for quick lookup
         existing_tx_ids = {tx[0] for tx in db.query(Transaction.id).all()}
+        logger.info(f"Found {len(existing_tx_ids)} existing transactions in database")
         
         # Process transactions - only add new ones
         new_transaction_count = 0
-        for tx in transactions:
+        skipped_transactions = 0
+        transactions = client.get_transactions(days_back=days_back)
+        
+        for i, tx in enumerate(transactions, 1):
             tx_id = tx.get('id')
             account_id = tx.get('account_id')
             
-            # Skip transaction already exists
+            if not tx_id:
+                logger.warning(f"Transaction at index {i} has no ID, skipping")
+                skipped_transactions += 1
+                continue
+                
+            if not account_id:
+                logger.warning(f"Transaction {tx_id} has no account ID, skipping")
+                skipped_transactions += 1
+                continue
+                
+            # Check if transaction already exists
             if tx_id in existing_tx_ids:
+                logger.debug(f"Transaction {tx_id} already exists, skipping")
+                skipped_transactions += 1
                 continue
             
-            # Skip if account doesn't exist in our database
+            # Check if account exists
             if account_id not in existing_account_ids:
-                logger.warning(f"Account {account_id} not found in database or new accounts, skipping transaction {tx_id}")
+                logger.warning(f"Account {account_id} not found for transaction {tx_id}, skipping")
+                skipped_transactions += 1
                 continue
             
-            # Prepare transaction data
             try:
+                # Prepare transaction data
                 tx_data = {
                     'id': tx_id,
                     'account_id': account_id,
@@ -110,26 +125,33 @@ async def sync_simplefin(
                 # Add new transaction
                 db_tx = Transaction(**tx_data)
                 db.add(db_tx)
-                logger.info(f"Added new transaction: {tx_data}")
                 new_transaction_count += 1
+                logger.info(f"Adding new transaction: {tx_data}")
                 
-                # Batch commit transactions to avoid large transactions
-                if new_transaction_count % 100 == 0:
+                # Batch commit transactions
+                if new_transaction_count % 10 == 0:
                     db.commit()
+                    logger.debug(f"Committed batch of 10 transactions")
                     
             except Exception as e:
-                logger.error(f"Error processing transaction {tx_id}: {str(e)}")
+                logger.error(f"Error processing transaction {tx_id}: {str(e)}", exc_info=True)
+                db.rollback()
+                skipped_transactions += 1
                 continue
         
         # Final commit for any remaining transactions
-        if new_transaction_count % 100 != 0:
+        if new_transaction_count > 0:
             db.commit()
+            logger.info(f"Committed final batch of {new_transaction_count % 10} transactions")
+        
+        logger.info(f"Sync completed. Added {new_account_count} accounts and {new_transaction_count} transactions. Skipped {skipped_transactions} transactions.")
         
         return {
             "status": "success",
             "new_accounts_added": new_account_count,
             "new_transactions_added": new_transaction_count,
-            "total_accounts": len(existing_account_ids) + new_account_count,
+            "skipped_transactions": skipped_transactions,
+            "total_accounts": len(existing_accounts) + new_account_count,
             "total_transactions": len(existing_tx_ids) + new_transaction_count,
             "timestamp": datetime.utcnow().isoformat()
         }
