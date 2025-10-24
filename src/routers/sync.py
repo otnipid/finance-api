@@ -89,7 +89,8 @@ async def sync_simplefin(
         new_transaction_count = 0
         skipped_transactions = 0
         transactions = client.get_transactions(days_back=days_back)
-        
+        logger.info(f"Retrieved {len(transactions)} transactions from SimpleFIN")
+
         for i, tx in enumerate(transactions, 1):
             tx_id = tx.get('id')
             account_id = tx.get('account_id')
