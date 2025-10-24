@@ -10,6 +10,14 @@ from typing import Dict, Any
 import logging
 from datetime import datetime
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()  # This sends logs to stdout
+    ]
+)
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
